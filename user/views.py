@@ -14,26 +14,59 @@ User = get_user_model()
 
 
 class RegisterView(APIView):
-	permission_classes = [permissions.AllowAny]
+    """
+    회원가입 API
 
-	def post(self, request):
-		serializer = RegisterSerializer(data=request.data)
-		if serializer.is_valid():
-			user = serializer.save()
-			return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
-		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    ---
+    ### 요청 본문
+    - username: 사용자 아이디
+    - email: 이메일 주소
+    - nickname: 닉네임
+    - password: 비밀번호 (최소 8자)
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        """
+        새로운 사용자를 생성합니다.
+        """
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response(UserSerializer(user).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginView(TokenObtainPairView):
-	# uses SimpleJWT's TokenObtainPairView
-	permission_classes = [permissions.AllowAny]
+    """
+    로그인 API
+
+    ---
+    ### 요청 본문
+    - username: 사용자 아이디
+    - password: 비밀번호
+    
+    ### 응답
+    - access: JWT 액세스 토큰
+    - refresh: JWT 리프레시 토큰
+    """
+    permission_classes = [permissions.AllowAny]
 
 
 class LogoutView(APIView):
+    """
+    로그아웃 API
+
+    ---
+    ### 요청 본문
+    - refresh: 현재 사용 중인 JWT 리프레시 토큰
+    """
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        """Blacklist the provided refresh token to logout user."""
+        """
+        제공된 리프레시 토큰을 블랙리스트에 추가하여 로그아웃합니다.
+        """
         refresh_token = request.data.get('refresh')
         if not refresh_token:
             return Response({'detail': 'refresh token required'}, status=status.HTTP_400_BAD_REQUEST)
@@ -47,11 +80,17 @@ class LogoutView(APIView):
 
 
 class KakaoLoginView(APIView):
+    """
+    카카오 로그인 시작 API
+
+    ---
+    카카오 로그인 페이지로 리다이렉트합니다.
+    """
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
         """
-        카카오 로그인 URL로 리다이렉트
+        카카오 OAuth 인증 페이지로 리다이렉트합니다.
         """
         client_id = settings.KAKAO_REST_API_KEY
         redirect_uri = settings.KAKAO_REDIRECT_URI
@@ -60,11 +99,23 @@ class KakaoLoginView(APIView):
 
 
 class SocialAccountView(APIView):
-    """소셜 계정 연동 상태 확인 및 연동 해제"""
+    """
+    소셜 계정 관리 API
+
+    ---
+    ### 응답 (GET)
+    - is_kakao_user: 카카오 계정으로 가입한 사용자 여부
+    - kakao_connected: 카카오 계정 연동 여부
+
+    ### 응답 (DELETE)
+    - message: 성공/실패 메시지
+    """
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        """소셜 계정 연동 상태 확인"""
+        """
+        현재 사용자의 소셜 계정 연동 상태를 조회합니다.
+        """
         return Response({
             'is_kakao_user': request.user.is_kakao_user,
             'kakao_connected': bool(request.user.kakao_id),
@@ -93,11 +144,28 @@ class SocialAccountView(APIView):
 
 
 class KakaoCallbackView(APIView):
+    """
+    카카오 로그인 콜백 API
+
+    ---
+    ### Query Parameters
+    - code: 카카오 인증 코드
+
+    ### 응답
+    - user: 사용자 정보
+        - id: 사용자 ID
+        - username: 사용자 아이디
+        - email: 이메일
+        - nickname: 닉네임
+        - profile_image: 프로필 이미지 URL
+    - access: JWT 액세스 토큰
+    - refresh: JWT 리프레시 토큰
+    """
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
         """
-        카카오 OAuth 콜백 처리
+        카카오 OAuth 인증 완료 후 콜백을 처리하고 JWT 토큰을 발급합니다.
         """
         code = request.GET.get('code')
         if not code:
