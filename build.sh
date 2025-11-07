@@ -2,14 +2,6 @@
 # exit on error
 set -o errexit
 
-# Install system dependencies required by Pillow
-sudo apt-get update
-sudo apt-get install -y \
-  libjpeg-dev \
-  zlib1g-dev \
-  libpng-dev \
-  libfreetype6-dev
-  
 # Install dependencies
 pip install --upgrade pip setuptools wheel
 pip install -r requirements.txt
