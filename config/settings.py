@@ -16,6 +16,16 @@ import os, environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+STATIC_URL = "/static/"
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
+# 배포 환경에서 정적 파일 서빙
+STATIC_URL = '/static/'
+
 env = environ.Env(
     DEBUG=(bool, True)
 )
@@ -32,6 +42,7 @@ environ.Env.read_env(
 SECRET_KEY = env('SECRET_KEY')
 KAKAO_REST_API_KEY = env('KAKAO_SECRET_KEY') 
 KAKAO_REDIRECT_URI = env('KAKAO_REDIRECT_URI')
+OPENAI_API_KEY = env('OPENAI_API_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
