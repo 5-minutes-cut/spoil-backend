@@ -8,18 +8,17 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('genre', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Series',
+            name='Season',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=255)),
-                ('photo', models.ImageField(blank=True, null=True, upload_to='series_photos/')),
-                ('description', models.TextField(blank=True, null=True)),
-                ('genres', models.ManyToManyField(blank=True, related_name='series', to='genre.genre')),
+                ('season_number', models.PositiveIntegerField()),
             ],
+            options={
+                'ordering': ['series', 'season_number'],
+            },
         ),
     ]
