@@ -1,5 +1,10 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import EpisodeViewSet
+
+router = DefaultRouter()
+router.register('', EpisodeViewSet, basename='episode')
 
 urlpatterns = [
-    # episode app endpoints will be added here
+    path('', include(router.urls)),
 ]

@@ -1,5 +1,10 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import SeasonViewSet
+
+router = DefaultRouter()
+router.register('', SeasonViewSet, basename='season')
 
 urlpatterns = [
-    # placeholder - season app has no public API routes yet
+    path('', include(router.urls)),
 ]
