@@ -150,3 +150,8 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
+
+# Kakao OAuth 설정
+KAKAO_REST_API_KEY = env('KAKAO_REST_API_KEY', default='your-kakao-rest-api-key')
+KAKAO_REDIRECT_URI = env('KAKAO_REDIRECT_URI', default='http://localhost:8000/api/user/kakao/callback/')
+KAKAO_CLIENT_SECRET = env('KAKAO_CLIENT_SECRET', default='your-kakao-client-secret')

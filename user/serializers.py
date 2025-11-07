@@ -23,3 +23,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+
+
+class KakaoUserSerializer(serializers.Serializer):
+    code = serializers.CharField(write_only=True)
+    error = serializers.CharField(read_only=True)
+    access = serializers.CharField(read_only=True)
+    refresh = serializers.CharField(read_only=True)

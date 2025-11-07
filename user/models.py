@@ -7,6 +7,10 @@ class User(AbstractUser):
     """
     nickname = models.CharField(max_length=50, unique=True, help_text="사용자의 닉네임")
     profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True, help_text="프로필 이미지")
+    
+    # 소셜 로그인 필드
+    kakao_id = models.CharField(max_length=100, null=True, blank=True, unique=True, help_text="카카오 소셜 ID")
+    is_kakao_user = models.BooleanField(default=False, help_text="카카오 로그인 사용자 여부")
 
     class Meta:
         db_table = 'user'
