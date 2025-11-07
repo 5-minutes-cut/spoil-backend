@@ -47,6 +47,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'user',
+    'rest_framework_simplejwt.token_blacklist',
+    'rest_framework',
+    'corsheaders',
+    'drf_yasg',
     'series',
     'season',
     'episode',
@@ -138,8 +143,19 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Custom User Model
+AUTH_USER_MODEL = 'user.User'
+
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES' : (
         'rest_framework.permissions.AllowAny',
-    )
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
 }
+
+# Kakao OAuth 설정
+KAKAO_REST_API_KEY = env('KAKAO_REST_API_KEY', default='your-kakao-rest-api-key')
+KAKAO_REDIRECT_URI = env('KAKAO_REDIRECT_URI', default='http://localhost:8000/api/user/kakao/callback/')
+KAKAO_CLIENT_SECRET = env('KAKAO_CLIENT_SECRET', default='your-kakao-client-secret')
