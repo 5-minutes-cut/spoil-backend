@@ -16,6 +16,16 @@ import os, environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+STATIC_URL = "/static/"
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
+# 배포 환경에서 정적 파일 서빙
+STATIC_URL = '/static/'
+
 env = environ.Env(
     DEBUG=(bool, True)
 )
