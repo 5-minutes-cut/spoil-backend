@@ -5,7 +5,7 @@ from .serializers import SeriesSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-class SeriesViewSet(viewsets.ModelViewSet):
+class SeriesViewSet(viewsets.ReadOnlyModelViewSet):
     """
     시리즈(애니메이션) 정보를 관리하는 ViewSet
     """

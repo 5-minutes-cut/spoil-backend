@@ -5,10 +5,7 @@ from .serializers import EpisodeSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-class EpisodeViewSet(viewsets.ModelViewSet):
-    """
-    에피소드 정보를 관리하는 ViewSet
-    """
+class EpisodeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Episode.objects.all()
     serializer_class = EpisodeSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]

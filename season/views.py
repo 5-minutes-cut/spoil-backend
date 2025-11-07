@@ -5,7 +5,7 @@ from .serializers import SeasonSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-class SeasonViewSet(viewsets.ModelViewSet):
+class SeasonViewSet(viewsets.ReadOnlyModelViewSet):
     """
     시즌 정보를 관리하는 ViewSet
     """

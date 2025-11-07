@@ -22,9 +22,9 @@ from drf_yasg import openapi
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="5 Minutes Cut API",
+        title="5분컷 API",
         default_version='v1',
-        description="5분컷 애니메이션 스포일러 커뮤니티 API 문서",
+        description="5분컷 - 애니메이션 스포일러 방지 검색 API 문서",
         terms_of_service="https://www.google.com/policies/terms/",
         contact=openapi.Contact(email="contact@spoil.com"),
         license=openapi.License(name="BSD License"),
@@ -47,6 +47,7 @@ urlpatterns = [
     path('api/series/', include('series.urls')),
     path('api/season/', include('season.urls')),
     path('api/episode/', include('episode.urls')),
+    path('api/genre/', include('genre.urls')),
     path('api/series-chat/', include('chat.urls')),
     path('api/user/', include('user.urls')),
 ]
