@@ -161,3 +161,7 @@ REST_FRAMEWORK = {
 KAKAO_REST_API_KEY = env('KAKAO_REST_API_KEY', default='your-kakao-rest-api-key')
 KAKAO_REDIRECT_URI = env('KAKAO_REDIRECT_URI', default='http://localhost:8000/api/user/kakao/callback/')
 KAKAO_CLIENT_SECRET = env('KAKAO_CLIENT_SECRET', default='your-kakao-client-secret')
+
+CHANNEL_OPEN_API_KEY = env('CHANNEL_ACCESS_KEY')
+CHANNEL_OPEN_API_SECRET = env('CHANNEL_API_SECRET')
+CHANNEL_OPEN_BASE_URL = "https://api.channel.io/open/v5" 

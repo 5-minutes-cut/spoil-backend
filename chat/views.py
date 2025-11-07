@@ -1,6 +1,8 @@
+from django.conf import settings
 from rest_framework import status, permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Conversation, QAPair
 from .serializers import (
@@ -8,9 +10,14 @@ from .serializers import (
     QAPairSerializer,
     CreateQuestionSerializer,
 )
+from series.models import Series
 from django.contrib.auth import get_user_model
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+import json
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 
 User = get_user_model()
 
@@ -119,3 +126,52 @@ class QAPairListCreateView(APIView):
         qa.save()
 
         return Response(QAPairSerializer(qa).data, status=status.HTTP_201_CREATED)
+
+from .channelio import (
+    report_bug_with_member_id,
+    ChannelIoUserNotFound,
+    ChannelIoError,
+)
+
+class ChannelBugReportView(APIView):
+    @csrf_exempt  # 실제 서비스면 CSRF 토큰 처리 추천
+    @require_POST
+    def channel_bug_report(request):
+        try:
+            body = json.loads(request.body.decode("utf-8"))
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "invalid_json"}, status=400)
+
+        member_id = str(body.get("memberId") or "").strip()
+        query = body.get("query") or ""
+        answer_text = body.get("answerText") or ""
+        answer_id = body.get("answerId")
+        extra_info = body.get("extraInfo")
+
+        if not member_id or not query or not answer_text:
+            return JsonResponse(
+                {"error": "memberId, query, answerText 는 필수입니다."},
+                status=400,
+            )
+
+        try:
+            result = report_bug_with_member_id(
+                member_id=member_id,
+                query=query,
+                answer_text=answer_text,
+                answer_id=answer_id,
+                extra_info=extra_info,
+            )
+        except ChannelIoUserNotFound:
+            # 프론트에서 아직 ChannelIO('boot') 를 안 했을 가능성
+            return JsonResponse(
+                {"error": "channel_user_not_found", "detail": "Channel member 가 없습니다."},
+                status=404,
+            )
+        except ChannelIoError as e:
+            return JsonResponse(
+                {"error": "channel_io_error", "detail": str(e)},
+                status=502,
+            )
+
+        return JsonResponse({"ok": True, "channel": result}, status=201)

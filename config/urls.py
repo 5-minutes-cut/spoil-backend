@@ -50,4 +50,5 @@ urlpatterns = [
     path('api/genre/', include('genre.urls')),
     path('api/series-chat/', include('chat.urls')),
     path('api/user/', include('user.urls')),
+    path('api/chat/', include('chat.urls')),
 ]
