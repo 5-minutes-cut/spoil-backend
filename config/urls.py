@@ -44,7 +44,8 @@ urlpatterns = [
 
     # Admin & API URLs
     path('admin/', admin.site.urls),
-    path('api/anime/', include('anime.urls')),
+    path('api/series/', include('series.urls')),
+    path('api/season/', include('season.urls')),
     path('api/episode/', include('episode.urls')),
     path('api/user/', include('user.urls')),
 ]
