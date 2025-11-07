@@ -22,7 +22,7 @@ class Conversation(models.Model):
         help_text='대화를 시작한 사용자 (익명 가능)'
     )
     series = models.ForeignKey(
-        'anime.Anime',
+        'series.Series',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
