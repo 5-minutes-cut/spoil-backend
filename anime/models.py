@@ -1,3 +1,11 @@
 from django.db import models
 
-# Create your models here.
+
+class Anime(models.Model):
+	title = models.CharField(max_length=255)
+
+	class Meta:
+		db_table = 'anime'
+
+	def __str__(self):
+		return self.title
