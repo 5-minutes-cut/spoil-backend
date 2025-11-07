@@ -9,6 +9,8 @@ from .serializers import (
     CreateQuestionSerializer,
 )
 from django.contrib.auth import get_user_model
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 User = get_user_model()
 
@@ -22,11 +24,30 @@ class ConversationListCreateView(APIView):
     """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+    
+
+    @swagger_auto_schema(
+        operation_summary="Conversation 목록 조회",
+        operation_description="모든 Conversation(대화 세션)을 생성일 역순으로 반환합니다.",
+        responses={200: ConversationSerializer(many=True)}
+    )
     def get(self, request):
         conversations = Conversation.objects.all().order_by('-created_at')
         serializer = ConversationSerializer(conversations, many=True)
         return Response(serializer.data)
 
+    @swagger_auto_schema(
+        operation_summary="새 대화 생성",
+        operation_description="새로운 Conversation(대화 세션)을 생성합니다. `summary`와 `series`(옵션) 필드를 지원합니다.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'summary': openapi.Schema(type=openapi.TYPE_STRING, description='대화 요약', max_length=1024),
+                'series': openapi.Schema(type=openapi.TYPE_INTEGER, description='관련 시리즈 ID (선택)')
+            }
+        ),
+        responses={201: ConversationSerializer(), 400: '잘못된 요청'}
+    )
     def post(self, request):
         data = request.data
         summary = data.get('summary', '')
@@ -50,12 +71,31 @@ class QAPairListCreateView(APIView):
     """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
+    
+
+    @swagger_auto_schema(
+        operation_summary="Conversation의 QAPair 목록 조회",
+        operation_description="주어진 Conversation ID에 연결된 모든 QAPair를 생성일 순으로 반환합니다.",
+        manual_parameters=[
+            openapi.Parameter('conversation_id', openapi.IN_PATH, description='대화 ID', type=openapi.TYPE_INTEGER)
+        ],
+        responses={200: QAPairSerializer(many=True), 404: 'Conversation 없음'}
+    )
     def get(self, request, conversation_id):
         conv = get_object_or_404(Conversation, id=conversation_id)
         qas = conv.qapairs.all()
         serializer = QAPairSerializer(qas, many=True)
         return Response(serializer.data)
 
+    @swagger_auto_schema(
+        operation_summary="질문 등록 및 자동 응답 생성",
+        operation_description="Conversation에 질문을 등록하면 QAPair가 생성되고 간단한 자동응답이 채워져 반환됩니다.",
+        manual_parameters=[
+            openapi.Parameter('conversation_id', openapi.IN_PATH, description='대화 ID', type=openapi.TYPE_INTEGER)
+        ],
+        request_body=CreateQuestionSerializer,
+        responses={201: QAPairSerializer(), 400: '잘못된 요청', 404: 'Conversation 없음'}
+    )
     def post(self, request, conversation_id):
         conv = get_object_or_404(Conversation, id=conversation_id)
         serializer = CreateQuestionSerializer(data=request.data)

@@ -16,7 +16,7 @@ class CustomUserAdmin(UserAdmin):
 
 @admin.register(WatchingStatus)
 class WatchingStatusAdmin(admin.ModelAdmin):
-    list_display = ('user', 'anime', 'status', 'current_episode', 'last_watched', 'rating')
+    list_display = ('user', 'series', 'status', 'current_episode', 'last_watched', 'rating')
     list_filter = ('status',)
-    search_fields = ('user__username', 'user__nickname', 'anime__title')
-    raw_id_fields = ('user', 'anime')
+    search_fields = ('user__username', 'user__nickname', 'series__title')
+    raw_id_fields = ('user', 'series')

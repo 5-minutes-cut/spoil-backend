@@ -25,6 +25,7 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ['season', 'episode_number'],
                 'unique_together': {('season', 'episode_number')},
+
             },
         ),
     ]

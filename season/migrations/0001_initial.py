@@ -23,6 +23,7 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ['series', 'season_number'],
                 'unique_together': {('series', 'season_number')},
+
             },
         ),
     ]

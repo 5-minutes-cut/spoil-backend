@@ -1,5 +1,10 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import SeriesViewSet
+
+router = DefaultRouter()
+router.register('', SeriesViewSet, basename='series')
 
 urlpatterns = [
-    # placeholder - series app has no public API routes yet
+    path('', include(router.urls)),
 ]

@@ -29,7 +29,7 @@ class WatchingStatus(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='watching_status', help_text="사용자")
-    anime = models.ForeignKey('series.Series', on_delete=models.CASCADE, related_name='watchers', help_text="애니메이션")
+    series = models.ForeignKey('series.Series', on_delete=models.CASCADE, related_name='watchers', help_text="애니메이션")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, help_text="시청 상태")
     current_episode = models.IntegerField(default=0, help_text="현재 시청 중인 에피소드")
     last_watched = models.DateTimeField(auto_now=True, help_text="마지막 시청일")
@@ -39,4 +39,4 @@ class WatchingStatus(models.Model):
         db_table = 'watching_status'
         verbose_name = '시청 현황'
         verbose_name_plural = '시청 현황들'
-        unique_together = ('user', 'anime')  # 한 사용자가 같은 애니메이션에 대해 중복 상태를 가질 수 없음
+        unique_together = ('user', 'series')  # 한 사용자가 같은 애니메이션에 대해 중복 상태를 가질 수 없음
