@@ -29,7 +29,7 @@ class WatchingStatus(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='watching_status', help_text="사용자")
-    anime = models.ForeignKey('anime.Anime', on_delete=models.CASCADE, related_name='watchers', help_text="애니메이션")
+    anime = models.ForeignKey('series.Series', on_delete=models.CASCADE, related_name='watchers', help_text="애니메이션")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, help_text="시청 상태")
     current_episode = models.IntegerField(default=0, help_text="현재 시청 중인 에피소드")
     last_watched = models.DateTimeField(auto_now=True, help_text="마지막 시청일")

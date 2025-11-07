@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     'season',
     'episode',
     'genre',
-    'rest_framework',
+    'chat',
 ]
 
 MIDDLEWARE = [

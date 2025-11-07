@@ -13,7 +13,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('anime', '0001_initial'),
         ('auth', '0012_alter_user_first_name_max_length'),
     ]
 
@@ -54,7 +53,7 @@ class Migration(migrations.Migration):
                 ('current_episode', models.IntegerField(default=0, help_text='현재 시청 중인 에피소드')),
                 ('last_watched', models.DateTimeField(auto_now=True, help_text='마지막 시청일')),
                 ('rating', models.IntegerField(blank=True, help_text='평점 (1-10)', null=True)),
-                ('anime', models.ForeignKey(help_text='애니메이션', on_delete=django.db.models.deletion.CASCADE, related_name='watchers', to='anime.anime')),
+                ('anime', models.ForeignKey(help_text='애니메이션', on_delete=django.db.models.deletion.CASCADE, related_name='watchers', to='series.series')),
                 ('user', models.ForeignKey(help_text='사용자', on_delete=django.db.models.deletion.CASCADE, related_name='watching_status', to=settings.AUTH_USER_MODEL)),
             ],
             options={
