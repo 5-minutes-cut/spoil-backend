@@ -32,6 +32,7 @@ environ.Env.read_env(
 SECRET_KEY = env('SECRET_KEY')
 KAKAO_REST_API_KEY = env('KAKAO_SECRET_KEY') 
 KAKAO_REDIRECT_URI = env('KAKAO_REDIRECT_URI')
+OPENAI_API_KEY = env('OPENAI_API_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

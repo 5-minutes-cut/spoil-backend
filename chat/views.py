@@ -11,8 +11,10 @@ from .serializers import (
 from django.contrib.auth import get_user_model
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from .services import GPTService
 
 User = get_user_model()
+gpt_service = GPTService()
 
 
 class ConversationListCreateView(APIView):
@@ -103,18 +105,31 @@ class QAPairListCreateView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         question = serializer.validated_data['question']
-        summary = serializer.validated_data.get('summary')
-
-        # conversation summary 업데이트(선택적)
-        if summary:
+        
+        # 첫 번째 질문인 경우에만 GPT로 요약하여 summary 설정
+        if not conv.qapairs.exists():
+            summary = gpt_service.summarize_question(question)
             conv.summary = summary
             conv.save()
 
         # QAPair 생성 (초기에는 answer_text 비워두고 생성)
         qa = QAPair.objects.create(conversation=conv, question_text=question)
 
-        # TODO: 실제 답변 생성(LLM/검색 연동 등)
-        answer = f"[자동응답] 질문을 받았습니다: {question[:200]}"
+        # 시리즈와 관련된 컨텍스트 수집
+        additional_context = []
+        if conv.series:
+            series = conv.series
+            additional_context.extend([
+                f"시리즈 제목: {series.title}",
+                f"시리즈 설명: {series.description}",
+            ])
+            # 시즌 정보 추가
+            for season in series.seasons.all():
+                additional_context.append(f"시즌 {season.number}: {season.title}")
+                additional_context.append(f"시즌 설명: {season.description}")
+
+        # GPT API를 통해 답변 생성
+        answer = gpt_service.generate_response(question, additional_context)
         qa.answer_text = answer
         qa.save()
 

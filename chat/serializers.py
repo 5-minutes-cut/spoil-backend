@@ -28,4 +28,3 @@ class ConversationSerializer(serializers.ModelSerializer):
 class CreateQuestionSerializer(serializers.Serializer):
     """질문 생성 요청 본문 검증용 시리얼라이저"""
     question = serializers.CharField(help_text='질문 내용', max_length=2000)
-    summary = serializers.CharField(help_text='대화 요약(선택)', max_length=1024, required=False, allow_blank=True)
