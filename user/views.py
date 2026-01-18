@@ -177,14 +177,19 @@ class KakaoCallbackView(APIView):
         data = {
             'grant_type': 'authorization_code',
             'client_id': settings.KAKAO_REST_API_KEY,
-            'client_secret': settings.KAKAO_CLIENT_SECRET,
             'redirect_uri': settings.KAKAO_REDIRECT_URI,
             'code': code,
         }
+        if settings.KAKAO_CLIENT_SECRET:
+            data['client_secret'] = settings.KAKAO_CLIENT_SECRET
         
         token_response = requests.post(token_url, data=data)
         if not token_response.ok:
-            return Response({'error': 'Failed to get access token'}, 
+            try:
+                kakao_error = token_response.json()
+            except ValueError:
+                kakao_error = token_response.text
+            return Response({'error': 'Failed to get access token', 'kakao_error': kakao_error}, 
                           status=status.HTTP_400_BAD_REQUEST)
         
         access_token = token_response.json().get('access_token')

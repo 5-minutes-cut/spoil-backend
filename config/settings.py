@@ -75,12 +75,12 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -108,13 +108,22 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 import dj_database_url
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:///db.sqlite3',  # 로컬 fallback
-        conn_max_age=600,
-        ssl_require=True
-    )
-}
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=DATABASE_URL.startswith(("postgres://", "postgresql://")),
+        )
+    }
+else:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default='sqlite:///db.sqlite3',  # 로컬 fallback
+            conn_max_age=600,
+        )
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -171,8 +180,14 @@ REST_FRAMEWORK = {
 
 # Kakao OAuth 설정
 KAKAO_REDIRECT_URI = env('KAKAO_REDIRECT_URI', default='http://localhost:8000/api/user/kakao/callback/')
-KAKAO_CLIENT_SECRET = env('KAKAO_CLIENT_SECRET', default='your-kakao-client-secret')
+KAKAO_CLIENT_SECRET = env('KAKAO_CLIENT_SECRET', default='')
 
 CHANNEL_OPEN_API_KEY = env('CHANNEL_ACCESS_KEY')
 CHANNEL_OPEN_API_SECRET = env('CHANNEL_ACCESS_SECRET')
 CHANNEL_OPEN_BASE_URL = "https://api.channel.io/open/v5" 
+
+# CORS: allow local Vite dev server and deployed frontend origins
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+CORS_ALLOW_CREDENTIALS = True
