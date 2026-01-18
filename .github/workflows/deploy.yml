@@ -28,13 +28,27 @@ jobs:
 
       - name: Run Django checks
         env:
-            SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          KAKAO_SECRET_KEY: ${{ secrets.KAKAO_SECRET_KEY }}
+          KAKAO_REDIRECT_URI: ${{ secrets.KAKAO_REDIRECT_URI }}
+          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          CHANNEL_OPEN_ACCESS_KEY: ${{ secrets.CHANNEL_OPEN_ACCESS_KEY }}
+          CHANNEL_IO_ACCESS_SECRET: ${{ secrets.CHANNEL_IO_ACCESS_SECRET }}
+          DEBUG: 'False'
         run: |
           python manage.py check
 
       - name: Run migrations check
         env:
-            SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          KAKAO_SECRET_KEY: ${{ secrets.KAKAO_SECRET_KEY }}
+          KAKAO_REDIRECT_URI: ${{ secrets.KAKAO_REDIRECT_URI }}
+          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          CHANNEL_OPEN_ACCESS_KEY: ${{ secrets.CHANNEL_OPEN_ACCESS_KEY }}
+          CHANNEL_IO_ACCESS_SECRET: ${{ secrets.CHANNEL_IO_ACCESS_SECRET }}
+          DEBUG: 'False'
         run: |
           python manage.py makemigrations --check --dry-run
 
