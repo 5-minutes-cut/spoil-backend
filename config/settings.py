@@ -61,7 +61,7 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[
     'spoil-backend.onrender.com', 
     '.onrender.com',
     '.elasticbeanstalk.com',  # EB 기본 도메인
-    '.ap-northeast-2.elasticbeanstalk.com',  # 서울 리전
+    '.ap-southeast-2.elasticbeanstalk.com',  # 서울 리전
 ])
 
 
