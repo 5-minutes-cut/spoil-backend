@@ -19,9 +19,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_URL = "/static/"
 
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
-]
+# static 폴더가 존재할 때만 추가
+if os.path.exists(os.path.join(BASE_DIR, "static")):
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, "static"),
+    ]
+else:
+    STATICFILES_DIRS = []
 
 # 배포 환경에서 정적 파일 서빙
 STATIC_URL = '/static/'
@@ -46,11 +50,6 @@ OPENAI_API_KEY = env('OPENAI_API_KEY')
 KAKAO_REST_API_KEY = env('KAKAO_SECRET_KEY') 
 KAKAO_REDIRECT_URI = env('KAKAO_REDIRECT_URI', default='http://localhost:8000/api/user/kakao/callback/')
 KAKAO_CLIENT_SECRET = env('KAKAO_CLIENT_SECRET', default='')
-
-# Channel.io API 설정
-CHANNEL_OPEN_ACCESS_KEY = env('CHANNEL_OPEN_ACCESS_KEY', default='')
-CHANNEL_IO_ACCESS_SECRET = env('CHANNEL_IO_ACCESS_SECRET', default='')
-CHANNEL_OPEN_BASE_URL = env('CHANNEL_OPEN_BASE_URL', default='https://api.channel.io/open/v5')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', default=False)
