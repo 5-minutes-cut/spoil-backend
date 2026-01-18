@@ -27,10 +27,14 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Django checks
+        env:
+            SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
           python manage.py check
 
       - name: Run migrations check
+        env:
+            SECRET_KEY: ${{ secrets.SECRET_KEY }}
         run: |
           python manage.py makemigrations --check --dry-run
 
