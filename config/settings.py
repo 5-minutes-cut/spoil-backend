@@ -45,9 +45,16 @@ KAKAO_REDIRECT_URI = env('KAKAO_REDIRECT_URI')
 OPENAI_API_KEY = env('OPENAI_API_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'spoil-backend.onrender.com', '.onrender.com']
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[
+    'localhost', 
+    '127.0.0.1', 
+    'spoil-backend.onrender.com', 
+    '.onrender.com',
+    '.elasticbeanstalk.com',  # EB 기본 도메인
+    '.ap-northeast-2.elasticbeanstalk.com',  # 서울 리전
+])
 
 
 # Application definition
