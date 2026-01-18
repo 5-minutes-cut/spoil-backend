@@ -150,9 +150,60 @@ from .channelio import (
 )
 
 class ChannelBugReportView(APIView):
+    """
+    Channel.io를 통한 버그 리포트 전송 API
+    
+    POST: 질문-답변 내용을 Channel.io 상담창으로 전송
+    """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    @swagger_auto_schema(
+        operation_summary="Channel.io 버그 리포트 전송",
+        operation_description="질문-답변 내용을 Channel.io 상담창으로 전송합니다.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['memberId', 'query', 'answerText'],
+            properties={
+                'memberId': openapi.Schema(
+                    type=openapi.TYPE_STRING, 
+                    description='Channel.io 회원 ID'
+                ),
+                'query': openapi.Schema(
+                    type=openapi.TYPE_STRING, 
+                    description='사용자가 입력한 질문'
+                ),
+                'answerText': openapi.Schema(
+                    type=openapi.TYPE_STRING, 
+                    description='시스템이 생성한 답변'
+                ),
+                'answerId': openapi.Schema(
+                    type=openapi.TYPE_STRING, 
+                    description='답변 ID (선택사항)'
+                ),
+                'extraInfo': openapi.Schema(
+                    type=openapi.TYPE_OBJECT, 
+                    description='추가 정보 (선택사항)'
+                ),
+            }
+        ),
+        responses={
+            201: openapi.Response(
+                description="성공적으로 전송됨",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'ok': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                        'channel': openapi.Schema(type=openapi.TYPE_OBJECT),
+                    }
+                )
+            ),
+            400: '잘못된 요청 (필수 필드 누락 또는 잘못된 JSON)',
+            404: 'Channel 회원을 찾을 수 없음',
+            502: 'Channel.io 서버 에러'
+        }
+    )
     @csrf_exempt  # 실제 서비스면 CSRF 토큰 처리 추천
-    @require_POST
-    def channel_bug_report(request):
+    def post(self, request):
         try:
             body = json.loads(request.body.decode("utf-8"))
         except json.JSONDecodeError:

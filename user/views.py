@@ -7,6 +7,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 from .serializers import RegisterSerializer, UserSerializer, KakaoUserSerializer
 
@@ -16,16 +18,30 @@ User = get_user_model()
 class RegisterView(APIView):
     """
     회원가입 API
-
-    ---
-    ### 요청 본문
-    - username: 사용자 아이디
-    - email: 이메일 주소
-    - nickname: 닉네임
-    - password: 비밀번호 (최소 8자)
     """
     permission_classes = [permissions.AllowAny]
 
+    @swagger_auto_schema(
+        operation_summary="회원가입",
+        operation_description="새로운 사용자를 생성합니다.",
+        request_body=RegisterSerializer,
+        responses={
+            201: openapi.Response(
+                description="회원가입 성공",
+                schema=UserSerializer
+            ),
+            400: openapi.Response(
+                description="잘못된 요청",
+                examples={
+                    "application/json": {
+                        "username": ["이 필드는 필수 항목입니다."],
+                        "password": ["비밀번호는 최소 8자 이상이어야 합니다."]
+                    }
+                }
+            )
+        },
+        tags=["사용자 인증"]
+    )
     def post(self, request):
         """
         새로운 사용자를 생성합니다.
@@ -40,8 +56,10 @@ class RegisterView(APIView):
 class LoginView(TokenObtainPairView):
     """
     로그인 API
-
-    ---
+    
+    JWT 토큰을 발급받기 위한 로그인 엔드포인트입니다.
+    사용자 인증 후 JWT 토큰(access, refresh)을 발급합니다.
+    
     ### 요청 본문
     - username: 사용자 아이디
     - password: 비밀번호
@@ -56,13 +74,37 @@ class LoginView(TokenObtainPairView):
 class LogoutView(APIView):
     """
     로그아웃 API
-
-    ---
-    ### 요청 본문
-    - refresh: 현재 사용 중인 JWT 리프레시 토큰
     """
     permission_classes = [permissions.IsAuthenticated]
 
+    @swagger_auto_schema(
+        operation_summary="로그아웃",
+        operation_description="제공된 리프레시 토큰을 블랙리스트에 추가하여 로그아웃합니다.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['refresh'],
+            properties={
+                'refresh': openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description='JWT 리프레시 토큰'
+                )
+            }
+        ),
+        responses={
+            205: openapi.Response(description="로그아웃 성공"),
+            400: openapi.Response(
+                description="잘못된 요청",
+                examples={
+                    "application/json": {
+                        "detail": "refresh token required"
+                    }
+                }
+            ),
+            401: openapi.Response(description="인증 실패")
+        },
+        tags=["사용자 인증"],
+        security=[{'Bearer': []}]
+    )
     def post(self, request):
         """
         제공된 리프레시 토큰을 블랙리스트에 추가하여 로그아웃합니다.
@@ -85,6 +127,19 @@ class CurrentUserView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
 
+    @swagger_auto_schema(
+        operation_summary="현재 사용자 정보 조회",
+        operation_description="인증된 사용자의 정보를 반환합니다.",
+        responses={
+            200: openapi.Response(
+                description="사용자 정보 조회 성공",
+                schema=UserSerializer
+            ),
+            401: openapi.Response(description="인증 실패")
+        },
+        tags=["사용자"],
+        security=[{'Bearer': []}]
+    )
     def get(self, request):
         serializer = UserSerializer(request.user, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -93,12 +148,17 @@ class CurrentUserView(APIView):
 class KakaoLoginView(APIView):
     """
     카카오 로그인 시작 API
-
-    ---
-    카카오 로그인 페이지로 리다이렉트합니다.
     """
     permission_classes = [permissions.AllowAny]
 
+    @swagger_auto_schema(
+        operation_summary="카카오 로그인 시작",
+        operation_description="카카오 OAuth 인증 페이지로 리다이렉트합니다.",
+        responses={
+            302: openapi.Response(description="카카오 로그인 페이지로 리다이렉트")
+        },
+        tags=["소셜 로그인"]
+    )
     def get(self, request):
         """
         카카오 OAuth 인증 페이지로 리다이렉트합니다.
@@ -112,17 +172,34 @@ class KakaoLoginView(APIView):
 class SocialAccountView(APIView):
     """
     소셜 계정 관리 API
-
-    ---
-    ### 응답 (GET)
-    - is_kakao_user: 카카오 계정으로 가입한 사용자 여부
-    - kakao_connected: 카카오 계정 연동 여부
-
-    ### 응답 (DELETE)
-    - message: 성공/실패 메시지
     """
     permission_classes = [permissions.IsAuthenticated]
 
+    @swagger_auto_schema(
+        operation_summary="소셜 계정 연동 상태 조회",
+        operation_description="현재 사용자의 소셜 계정 연동 상태를 조회합니다.",
+        responses={
+            200: openapi.Response(
+                description="연동 상태 조회 성공",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'is_kakao_user': openapi.Schema(
+                            type=openapi.TYPE_BOOLEAN,
+                            description='카카오 계정으로 가입한 사용자 여부'
+                        ),
+                        'kakao_connected': openapi.Schema(
+                            type=openapi.TYPE_BOOLEAN,
+                            description='카카오 계정 연동 여부'
+                        )
+                    }
+                )
+            ),
+            401: openapi.Response(description="인증 실패")
+        },
+        tags=["소셜 계정"],
+        security=[{'Bearer': []}]
+    )
     def get(self, request):
         """
         현재 사용자의 소셜 계정 연동 상태를 조회합니다.
@@ -132,6 +209,35 @@ class SocialAccountView(APIView):
             'kakao_connected': bool(request.user.kakao_id),
         })
 
+    @swagger_auto_schema(
+        operation_summary="소셜 계정 연동 해제",
+        operation_description="카카오 계정 연동을 해제합니다. 순수 카카오 로그인 사용자는 먼저 비밀번호를 설정해야 합니다.",
+        responses={
+            200: openapi.Response(
+                description="연동 해제 성공",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'message': openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            description='성공 메시지'
+                        )
+                    }
+                )
+            ),
+            400: openapi.Response(
+                description="잘못된 요청",
+                examples={
+                    "application/json": {
+                        "error": "연동된 카카오 계정이 없습니다."
+                    }
+                }
+            ),
+            401: openapi.Response(description="인증 실패")
+        },
+        tags=["소셜 계정"],
+        security=[{'Bearer': []}]
+    )
     def delete(self, request):
         """소셜 계정 연동 해제"""
         user = request.user
@@ -157,23 +263,54 @@ class SocialAccountView(APIView):
 class KakaoCallbackView(APIView):
     """
     카카오 로그인 콜백 API
-
-    ---
-    ### Query Parameters
-    - code: 카카오 인증 코드
-
-    ### 응답
-    - user: 사용자 정보
-        - id: 사용자 ID
-        - username: 사용자 아이디
-        - email: 이메일
-        - nickname: 닉네임
-        - profile_image: 프로필 이미지 URL
-    - access: JWT 액세스 토큰
-    - refresh: JWT 리프레시 토큰
     """
     permission_classes = [permissions.AllowAny]
 
+    @swagger_auto_schema(
+        operation_summary="카카오 로그인 콜백",
+        operation_description="카카오 OAuth 인증 완료 후 콜백을 처리하고 JWT 토큰을 발급합니다.",
+        manual_parameters=[
+            openapi.Parameter(
+                'code',
+                openapi.IN_QUERY,
+                description="카카오 인증 코드",
+                type=openapi.TYPE_STRING,
+                required=True
+            )
+        ],
+        responses={
+            200: openapi.Response(
+                description="로그인 성공",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'user': openapi.Schema(
+                            type=openapi.TYPE_OBJECT,
+                            description='사용자 정보',
+                            properties={
+                                'id': openapi.Schema(type=openapi.TYPE_INTEGER, description='사용자 ID'),
+                                'username': openapi.Schema(type=openapi.TYPE_STRING, description='사용자 아이디'),
+                                'email': openapi.Schema(type=openapi.TYPE_STRING, description='이메일'),
+                                'nickname': openapi.Schema(type=openapi.TYPE_STRING, description='닉네임'),
+                                'profile_image': openapi.Schema(type=openapi.TYPE_STRING, description='프로필 이미지 URL')
+                            }
+                        ),
+                        'access': openapi.Schema(type=openapi.TYPE_STRING, description='JWT 액세스 토큰'),
+                        'refresh': openapi.Schema(type=openapi.TYPE_STRING, description='JWT 리프레시 토큰')
+                    }
+                )
+            ),
+            400: openapi.Response(
+                description="잘못된 요청",
+                examples={
+                    "application/json": {
+                        "error": "Authorization code not provided"
+                    }
+                }
+            )
+        },
+        tags=["소셜 로그인"]
+    )
     def get(self, request):
         """
         카카오 OAuth 인증 완료 후 콜백을 처리하고 JWT 토큰을 발급합니다.
