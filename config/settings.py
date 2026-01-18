@@ -40,9 +40,12 @@ environ.Env.read_env(
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
-KAKAO_REST_API_KEY = env('KAKAO_SECRET_KEY') 
-KAKAO_REDIRECT_URI = env('KAKAO_REDIRECT_URI')
 OPENAI_API_KEY = env('OPENAI_API_KEY')
+
+# Kakao OAuth 설정
+KAKAO_REST_API_KEY = env('KAKAO_SECRET_KEY') 
+KAKAO_REDIRECT_URI = env('KAKAO_REDIRECT_URI', default='http://localhost:8000/api/user/kakao/callback/')
+KAKAO_CLIENT_SECRET = env('KAKAO_CLIENT_SECRET', default='')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', default=False)
@@ -187,13 +190,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-# Kakao OAuth 설정
-KAKAO_REDIRECT_URI = env('KAKAO_REDIRECT_URI', default='http://localhost:8000/api/user/kakao/callback/')
-KAKAO_CLIENT_SECRET = env('KAKAO_CLIENT_SECRET', default='')
 
-CHANNEL_OPEN_API_KEY = env('CHANNEL_ACCESS_KEY')
-CHANNEL_OPEN_API_SECRET = env('CHANNEL_ACCESS_SECRET')
-CHANNEL_OPEN_BASE_URL = "https://api.channel.io/open/v5" 
 
 # CORS: allow local Vite dev server and deployed frontend origins
 CORS_ALLOWED_ORIGINS = [
